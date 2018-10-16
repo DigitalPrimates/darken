@@ -1,5 +1,9 @@
-# Installation
-TODO
+# Darken
+## What is darken?
+
+Darken is a library providing useful components to be used when doing simple obfuscation of Brightscript scripts. It is not intended to be a tool or complete solution on its own.
+
+When combined with a parser that can return AST (such as @roku-road/bright), the library can be used to do basic literal obfuscation, reference renaming, comment stripping and type removal. The project includes a simple manifest parser to determine entry points and related files to ensure consistent renaming.
 
 # Usage
 
@@ -19,7 +23,7 @@ const {
 
 Once you have the script URIs, the basics steps are as follows:
 1. Map each script file to its contents as a String
-1. Map each file's contents to a Brightscript AST (@roku-road/bright?)
+1. Map each file's contents to a Brightscript AST (see @roku-road/bright for one such parser)
 1. Obfuscate each AST using `traverse`, `ObfuscationVisitor`, `fields` and `fns` from above.
 1. Generate new syntax using OutputVisitor
 
