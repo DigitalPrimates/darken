@@ -1,6 +1,7 @@
 {
   "name": "@digitalprimates/darken",
   "version": "0.0.5",
+  "public": true,
   "description": "Code obfuscation library for Roku BrightScript",
   "main": "index.js",
   "directories": {
@@ -8,6 +9,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DigitalPrimates/darken.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "BrightScript",
