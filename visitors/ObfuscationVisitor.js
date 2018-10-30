@@ -34,17 +34,23 @@ const toRandomString = length => {
   }).join('');
 };
 
-const toNewName = renamed => {
+const toGeneratedName = renamed => {
   const name = `_${toRandomString(12)}`
 
   return renamed.find(({dst})=>dst===name) 
-              ? toNewName(renamed)
+              ? toGeneratedName(renamed)
               : name;                
+};
+
+const toNewName = (renamed=[]) => ({name}) => {
+  const {src, dst} = renamed.find(({src, dst})=>src===name || dst===name) || {};
+
+  return ( src === name && dst ) || ( dst===name && name);
 };
 
 const renameDeclaration = ({node: {id, type}, scope:{rename}}, {renamed})=>{
   if (shouldRename(renamed, id)) {
-    const newRename = rename(id, `${toNewName(renamed)}`); //rename(id, `${id.name}2`);//
+    const newRename = rename(id, toNewName(renamed)(id) || toGeneratedName(renamed)); //rename(id, `${id.name}2`);//
     renamed.push(newRename);
   }
 };
@@ -52,7 +58,7 @@ const renameDeclaration = ({node: {id, type}, scope:{rename}}, {renamed})=>{
 const renameLiteral = ({node: {value}, scope: {rename}}, {renamed}) => {
   const name = value.replace(/\"/g, '');
   if (shouldRename(renamed, {name})) {
-    const newRename = rename({name}, `${toNewName(renamed)}`);
+    const newRename = rename({name}, toNewName(renamed)({name}) || toGeneratedName(renamed));
     renamed.push(newRename);
   }
 };
@@ -169,17 +175,15 @@ class ObfuscationVisitor {
       get('args').traverse({
         Literal: (p, s) => {
           const { idx } = p;
-          if ( idx ) renameLiteral(p, state);
+          //Only go after the 2nd arg
+          if ( idx ) {
+            renameLiteral(p, state);
+          }
         }
       })
     }
   }
   Comment(path, state) {
-    // path.traverse({
-    //   PERIOD: (path, state) => {
-    //     debugger;
-    //   }
-    // })
     return false;
   }
   DotMemberExpression(path, state) {
@@ -203,7 +207,7 @@ class ObfuscationVisitor {
   }
   Literal(path, state) {
     const {node, parent} = path;
-    //if (node.value == '"left"') debugger;
+
     const newNode = toNewLiteral(node.value);
     if (node.value != newNode) {
       replaceNode(parent)(node)(newNode);
@@ -225,7 +229,7 @@ class ObfuscationVisitor {
     const locallyRenamed = [];
     const gArgs = get('args').traverse({
       Parameter: ({node: {name}}, state) => {
-        const newRename = rename(name, `${toNewName(locallyRenamed)}`);
+        const newRename = rename(name, toNewName(locallyRenamed)(name) || toGeneratedName(locallyRenamed));
         locallyRenamed.push(newRename);
       }
     });

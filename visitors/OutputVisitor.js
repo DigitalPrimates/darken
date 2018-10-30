@@ -128,8 +128,8 @@ class OutputVisitor {
     return false;
   }
   Comment(path, state) {
-    const {node: {value}} = path;
-    addToSyntax(state, "'", value, "\n");
+    // const {node: {value}} = path;
+    // addToSyntax(state, "'", value, "\n");
     return false;
   }
   DECREMENT(path, state) {
